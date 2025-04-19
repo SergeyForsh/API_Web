@@ -204,3 +204,105 @@ def get_weather(city):
    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={api_key}&units=metric"
    response = requests.get(url
    return response.json()
+____________________________________________________________________________
+Используем NewsAPI — она нужна, чтобы мы могли получать новости.
+
+Мы будем получать новости и выводить их на сайте.
+
+Переходим на сайт newsapi.org.
+Нажимаем на кнопку Get API Key.
+Регистрируемся: вводим имя, адрес электронной почты, придумываем пароль, выбираем свой статус использования АПИ (человек или компания), ставим галочку о том, что не являемся роботом, нажимаем на кнопку Submit.
+Копируем API-ключ.
+Переходим в PyCharm.
+Создаём переменную для получения новостей и вставляем ключ:
+def get_news():
+   api_key = "a617b533135849c1b9cf361a6b4b84ea"
+7. Возвращаемся на страницу с ключом, нажимаем на getting started guide.
+
+8. На панели слева переходим в раздел Get curated breaking. Справа копируем адрес ссылки.
+
+9. Возвращаемся в PyCharm и продолжаем код — вставляем адрес в новую переменную:
+
+def get_news():
+   api_key = "a617b533135849c1b9cf361a6b4b84ea"
+   url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+10. Прописываем отправку запроса по данному адресу и получение json:
+
+def get_news():
+   api_key = "a617b533135849c1b9cf361a6b4b84ea"
+   url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+   response = requests.get(url)
+   return response.json()
+11. Возвращаемся на страницу с гайдом. Справа находим список по ключу articles. Это список статей, новостей. Нам нужно получать список с новостями.
+
+12. Возвращаемся в PyCharm и продолжаем код — дополняем получение новостей, вводим ключ. Если ключа не будет, возвращаться будет пустой список.
+
+def get_news():
+   api_key = "a617b533135849c1b9cf361a6b4b84ea"
+   url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={api_key}"
+   response = requests.get(url)
+   return response.json().get('articles', [])
+13. Дополняем код в блоке выше, создаём переменную для вызова результата работы функции:
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+   weather = None
+   news = None
+   if request.method == 'POST':
+       city = request.form['city']
+       weather = get_weather(city)
+       news = get_news()
+   return render_template("index.html", weather=weather, news=news)
+14. Дополняем код в HTML-документе, чтобы видеть информацию о новостях. Создаём блок-условие с заголовком под тегом <h2>:
+
+<div class="result text-center">
+       {% if weather %}
+           <h3>Погода в {{ weather['name'] }}</h3>
+           <p>Температура: {{ weather['main']['temp'] }}°C</p>
+           <p>Погода: {{ weather['weather'][0]['description'] }}</p>
+       {% endif %
+
+
+       {% if news %}
+           <h2>Новости:</h2>
+
+       {% endif %}
+
+
+   </div>
+15. Создаём тег <ul>, чтобы отобрать новости списком.
+
+{% if news %}
+           <h2>Новости:</h2>
+           <ul>
+
+           </ul>
+       {% endif %}
+16. Создаём цикл for, чтобы перебирать новости внутри news. Прописываем тег <li> для того, чтобы новости отображались элементами списка. С сайта берём ключ url, внутри которого содержится ссылка на новость. Помещаем ключ внутри тега href:
+
+{% if news %}
+           <h2>Новости:</h2>
+           <ul>
+               {% for article in news %}
+                   <li><a href="{{ article['url'] }}"> {{ article['title'] }} </a></li>
+               {% endfor %}
+           </ul>
+       {% endif %}
+С помощью цикла for мы будем перебирать каждую из наших новостей, каждую новость будем сохранять в переменную article, далее будем вставлять ссылку и заголовок новости.
+
+17. Создаём дополнительный блок, чтобы сайт выглядел более красиво и имел правильное разделение:
+
+<div class="result text-center">
+
+
+       {% if news %}
+           <h2>Новости:</h2>
+           <ul>
+               {% for article in news %}
+                   <li><a href="{{ article['url'] }}"> {{ article['title'] }} </a></li>
+               {% endfor %}
+           </ul>
+       {% endif %}
+
+
+   </div>
